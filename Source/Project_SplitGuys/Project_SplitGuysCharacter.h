@@ -18,7 +18,7 @@ class AProject_SplitGuysCharacter : public ACharacter
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class USphereComponent* sphereColl;
+	class UCapsuleComponent* capsuleColl;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	class UBoxComponent* LWeaponColl;
@@ -75,11 +75,11 @@ public:
 	int attackCombo;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float health;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float maxHealth;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float stamina;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float maxStamina;
 	float StaminaDrainRate;
 

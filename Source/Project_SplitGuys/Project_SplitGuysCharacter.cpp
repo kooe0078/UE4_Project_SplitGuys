@@ -8,14 +8,14 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 
-#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
 
 AProject_SplitGuysCharacter::AProject_SplitGuysCharacter()
 {
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(50.0f, 85.0f);
 
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
@@ -39,9 +39,9 @@ AProject_SplitGuysCharacter::AProject_SplitGuysCharacter()
 	FollowCamera->bUsePawnControlRotation = false;
 
 	// 튕겨내기를 위한 콜리전 생성
-	sphereColl = CreateDefaultSubobject<USphereComponent>(TEXT("ParryColl"));
-	sphereColl->SetupAttachment(RootComponent);
-	sphereColl->InitSphereRadius(200.0f);
+	capsuleColl = CreateDefaultSubobject<UCapsuleComponent>(TEXT("ParryColl"));
+	capsuleColl->SetupAttachment(RootComponent);
+	capsuleColl->InitCapsuleSize(150.0f, 250.0f);
 
 	// 무기 충돌 콜리전 생성
 	LWeaponColl = CreateDefaultSubobject<UBoxComponent>(TEXT("LWeaponColl"));
@@ -64,7 +64,7 @@ AProject_SplitGuysCharacter::AProject_SplitGuysCharacter()
 	bCanMove = true;
 
 	attackCombo = 0;
-	health = 100.0f;
+	health = 50.0f;
 	maxHealth = 100.0f;
 	stamina = 200.0f;
 	maxStamina = 200.0f;
@@ -126,7 +126,7 @@ void AProject_SplitGuysCharacter::LookUpAtRate(float Rate)
 void AProject_SplitGuysCharacter::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), bCanMove ? TEXT("true") : TEXT("false"));
-	UE_LOG(LogTemp, Warning, TEXT("%f"), stamina);
+	//UE_LOG(LogTemp, Warning, TEXT("%f"), stamina);
 
 	float DeltaStamina = StaminaDrainRate * DeltaTime;
 	if (stamina < maxStamina)
@@ -184,6 +184,7 @@ void AProject_SplitGuysCharacter::RMBDown()
 		FVector currentLot = GetMesh()->GetComponentLocation();
 		currentLot.Z += 40;
 		GetMesh()->SetWorldLocation(currentLot);
+		capsuleColl->SetGenerateOverlapEvents(true);
 		AnimInstance->Montage_Play(parryMontage);
 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
@@ -195,6 +196,7 @@ void AProject_SplitGuysCharacter::RMBDown()
 			FVector currentLot = GetMesh()->GetComponentLocation();
 			currentLot.Z -= 40;
 			GetMesh()->SetWorldLocation(currentLot);
+			capsuleColl->SetGenerateOverlapEvents(false);
 			bParryDoOnce = true;
 			bDeflect = false;
 		}), delayTime, false);
@@ -219,6 +221,7 @@ void AProject_SplitGuysCharacter::LeftShiftDown() {
 			FVector currentLot = GetMesh()->GetComponentLocation();
 			currentLot.Z += 40;
 			GetMesh()->SetWorldLocation(currentLot);
+			GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 			AnimInstance->Montage_Play(slideMontage);
 
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
@@ -230,6 +233,7 @@ void AProject_SplitGuysCharacter::LeftShiftDown() {
 				FVector currentLot = GetMesh()->GetComponentLocation();
 				currentLot.Z -= 40;
 				GetMesh()->SetWorldLocation(currentLot);
+				GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 				bSlideDoOnce = true;
 			}), delayTime, false);
 		}
@@ -254,6 +258,7 @@ void AProject_SplitGuysCharacter::LeftCtrlDown() {
 			FVector currentLot = GetMesh()->GetComponentLocation();
 			currentLot.Z += 40;
 			GetMesh()->SetWorldLocation(currentLot);
+			GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 			AnimInstance->Montage_Play(dodgeMontage);
 
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
@@ -265,6 +270,7 @@ void AProject_SplitGuysCharacter::LeftCtrlDown() {
 					FVector currentLot = GetMesh()->GetComponentLocation();
 					currentLot.Z -= 40;
 					GetMesh()->SetWorldLocation(currentLot);
+					GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 					bDodgeDoOnce = true;
 				}), delayTime, false);
 		}
