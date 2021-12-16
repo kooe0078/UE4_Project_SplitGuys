@@ -63,6 +63,7 @@ public:
 	bool bRMBDown;
 	bool bLeftShiftDown;
 	bool bLeftCtrlDown;
+
 	bool bIsAttacking;
 	bool bSaveAttack;
 	UPROPERTY(BlueprintReadOnly)
@@ -71,6 +72,9 @@ public:
 	bool bSlideDoOnce;
 	bool bDodgeDoOnce;
 	bool bCanMove;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsDie;
 
 	int attackCombo;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -105,6 +109,7 @@ protected:
 	FORCEINLINE void LeftShiftUp() { bLeftShiftDown = false; }
 	void LeftCtrlDown();
 	FORCEINLINE void LeftCtrlUp() { bLeftCtrlDown = false; }
+	void isPlayerDie();
 
 	// 콤보 공격 처리 함수
 	void Attack();

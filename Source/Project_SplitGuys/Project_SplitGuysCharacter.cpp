@@ -62,9 +62,10 @@ AProject_SplitGuysCharacter::AProject_SplitGuysCharacter()
 	bDodgeDoOnce = true;
 
 	bCanMove = true;
+	bIsDie = false;
 
 	attackCombo = 0;
-	health = 50.0f;
+	health = 100.0f;
 	maxHealth = 100.0f;
 	stamina = 200.0f;
 	maxStamina = 200.0f;
@@ -133,6 +134,10 @@ void AProject_SplitGuysCharacter::Tick(float DeltaTime) {
 		stamina += DeltaStamina;
 	else if (stamina >= maxStamina)
 		stamina = maxStamina;
+
+	if (health <= 0) {
+		isPlayerDie();
+	}
 }
 
 void AProject_SplitGuysCharacter::MoveForward(float Value)
@@ -185,7 +190,8 @@ void AProject_SplitGuysCharacter::RMBDown()
 		currentLot.Z += 40;
 		GetMesh()->SetWorldLocation(currentLot);
 		capsuleColl->SetGenerateOverlapEvents(true);
-		AnimInstance->Montage_Play(parryMontage);
+		//capsuleColl->SetNotifyRigidBodyCollision(true);
+		AnimInstance->Montage_Play(parryMontage);		
 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
@@ -197,6 +203,7 @@ void AProject_SplitGuysCharacter::RMBDown()
 			currentLot.Z -= 40;
 			GetMesh()->SetWorldLocation(currentLot);
 			capsuleColl->SetGenerateOverlapEvents(false);
+			//capsuleColl->SetNotifyRigidBodyCollision(false);
 			bParryDoOnce = true;
 			bDeflect = false;
 		}), delayTime, false);
@@ -275,6 +282,15 @@ void AProject_SplitGuysCharacter::LeftCtrlDown() {
 				}), delayTime, false);
 		}
 	}
+}
+
+void AProject_SplitGuysCharacter::isPlayerDie() {
+	bIsDie = true;
+	bCanMove = false;
+	capsuleColl->SetGenerateOverlapEvents(false);
+	capsuleColl->SetNotifyRigidBodyCollision(false);
+	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+	GetCapsuleComponent()->SetNotifyRigidBodyCollision(false);
 }
 
 void AProject_SplitGuysCharacter::Attack()

@@ -17,16 +17,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	class UProjectileMovementComponent* ProjectileMovement;
 
+private:
+	UFUNCTION()
+	void OnHitEvent(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+					UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	UFUNCTION()
+	void DestroyThisActor();
+
 public:	
-	// Sets default values for this actor's properties
 	ATest_Projectile();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 };
