@@ -12,6 +12,8 @@
 #include "Components/BoxComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
+#include "Sprit_AIController.h"
+#include "Kismet/GameplayStatics.h"
 
 AProject_SplitGuysCharacter::AProject_SplitGuysCharacter()
 {
@@ -48,6 +50,10 @@ AProject_SplitGuysCharacter::AProject_SplitGuysCharacter()
 	LWeaponColl->SetupAttachment(GetMesh(), FName("weapon_l"));
 	RWeaponColl = CreateDefaultSubobject<UBoxComponent>(TEXT("RWeaponColl"));
 	RWeaponColl->SetupAttachment(GetMesh(), FName("weapon_r"));
+
+	// AIController 관련
+	AIControllerClass = ASprit_AIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	bLMBDown = false;
 	bRMBDown = false;
@@ -191,7 +197,7 @@ void AProject_SplitGuysCharacter::RMBDown()
 		GetMesh()->SetWorldLocation(currentLot);
 		capsuleColl->SetGenerateOverlapEvents(true);
 		//capsuleColl->SetNotifyRigidBodyCollision(true);
-		AnimInstance->Montage_Play(parryMontage);		
+		AnimInstance->Montage_Play(parryMontage);
 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
@@ -269,17 +275,17 @@ void AProject_SplitGuysCharacter::LeftCtrlDown() {
 			AnimInstance->Montage_Play(dodgeMontage);
 
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
-				{
-					UE_LOG(LogTemp, Warning, TEXT("1초"));
-					// TimerHandle 초기화
-					GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-					GetCapsuleComponent()->SetCapsuleHalfHeight(85.0f, true);
-					FVector currentLot = GetMesh()->GetComponentLocation();
-					currentLot.Z -= 40;
-					GetMesh()->SetWorldLocation(currentLot);
-					GetCapsuleComponent()->SetGenerateOverlapEvents(true);
-					bDodgeDoOnce = true;
-				}), delayTime, false);
+			{
+				UE_LOG(LogTemp, Warning, TEXT("1초"));
+				// TimerHandle 초기화
+				GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+				GetCapsuleComponent()->SetCapsuleHalfHeight(85.0f, true);
+				FVector currentLot = GetMesh()->GetComponentLocation();
+				currentLot.Z -= 40;
+				GetMesh()->SetWorldLocation(currentLot);
+				GetCapsuleComponent()->SetGenerateOverlapEvents(true);
+				bDodgeDoOnce = true;
+			}), delayTime, false);
 		}
 	}
 }
@@ -291,6 +297,17 @@ void AProject_SplitGuysCharacter::isPlayerDie() {
 	capsuleColl->SetNotifyRigidBodyCollision(false);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 	GetCapsuleComponent()->SetNotifyRigidBodyCollision(false);
+
+	FTimerHandle TimerHandle;
+	float delayTime = 3.0f;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
+	{
+		UE_LOG(LogTemp, Warning, TEXT("3초"));
+		// TimerHandle 초기화
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+		FName mapName = FName(TEXT("StartMap"));
+		UGameplayStatics::OpenLevel(this, mapName);
+	}), delayTime, false);
 }
 
 void AProject_SplitGuysCharacter::Attack()

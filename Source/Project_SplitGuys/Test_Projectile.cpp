@@ -53,11 +53,11 @@ void ATest_Projectile::OnHitEvent(UPrimitiveComponent* HitComponent, AActor* Oth
 
 void ATest_Projectile::DestroyThisActor() {
 	FTimerHandle TimerHandle;
-	float delayTime = 5.0f;
+	float delayTime = 3.0f;
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
 	{
-		UE_LOG(LogTemp, Warning, TEXT("5초"));
+		UE_LOG(LogTemp, Warning, TEXT("3초"));
 		// TimerHandle 초기화
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
 		Destroy();
